@@ -11,12 +11,9 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// mở folder public
-app.use(express.static(path.join(__dirname, "public")))
-
+// Kết nối MongoDB Atlas
 console.log("Connecting to MongoDB...")
 
-// kết nối MongoDB Atlas
 mongoose.connect(
 "mongodb+srv://lanvihuynh98:Lanvi1905@cluster0.e5o1wx8.mongodb.net/badminton?retryWrites=true&w=majority"
 )
@@ -27,7 +24,7 @@ mongoose.connect(
     console.log("MongoDB error:", err)
 })
 
-// routes đăng ký đăng nhập
+// API routes
 app.use("/auth", authRoutes)
 
 // API lấy danh sách user
@@ -40,8 +37,11 @@ app.get("/users", async (req,res)=>{
     }
 })
 
-// TRANG CHỦ
-app.get("/", (req,res)=>{
+// Serve file static từ public
+app.use(express.static(path.join(__dirname,"public")))
+
+// Trang chủ
+app.get("/",(req,res)=>{
     res.sendFile(path.join(__dirname,"public","login.html"))
 })
 
