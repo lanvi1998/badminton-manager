@@ -11,13 +11,13 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// React build
-app.use(express.static(path.join(__dirname, "client/build")))
+// serve React build
+app.use(express.static(path.join(__dirname, "public")))
 
 console.log("Connecting to MongoDB...")
 
 mongoose.connect(
-"mongodb+srv://lanvihuynh98:Lanvi1905@cluster0.e5o1wx8.mongodb.net/badminton?retryWrites=true&w=majority"
+"mongodb+srv://lanvihuynh98:Lanvi1905@cluster0.tm10azb.mongodb.net/badminton?retryWrites=true&w=majority"
 )
 .then(()=>{
     console.log("MongoDB connected")
@@ -26,6 +26,7 @@ mongoose.connect(
     console.log("MongoDB error:", err)
 })
 
+// API routes
 app.use("/auth", authRoutes)
 
 app.get("/users", async (req,res)=>{
@@ -37,9 +38,9 @@ app.get("/users", async (req,res)=>{
     }
 })
 
-// React routes
-app.get("*",(req,res)=>{
-    res.sendFile(path.join(__dirname,"client","build","index.html"))
+// React fallback
+app.use((req,res)=>{
+    res.sendFile(path.join(__dirname,"public","index.html"))
 })
 
 const PORT = process.env.PORT || 5000
