@@ -3,11 +3,12 @@ const mongoose = require("mongoose")
 const path = require("path")
 
 const authRoutes = require("./routes/auth")
+const User = require("./models/User")
 
 const app = express()
 
 app.use(express.json())
-app.use(express.static("public"))
+app.use(express.static(path.join(__dirname, "public")))
 
 app.use("/auth", authRoutes)
 
