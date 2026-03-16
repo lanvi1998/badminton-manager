@@ -5,6 +5,7 @@ const User = require("../models/User")
 
 // REGISTER
 router.post("/register", async (req,res)=>{
+try{
 
 const {name,email,password} = req.body
 
@@ -21,10 +22,18 @@ message:"Register success",
 user:newUser
 })
 
+}catch(err){
+
+res.status(500).json({error:err.message})
+
+}
+
 })
 
 // LOGIN
 router.post("/login", async (req,res)=>{
+
+try{
 
 const {email,password} = req.body
 
@@ -46,6 +55,12 @@ res.json({
 message:"Login success",
 user
 })
+
+}catch(err){
+
+res.status(500).json({error:err.message})
+
+}
 
 })
 
