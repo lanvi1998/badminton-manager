@@ -1,52 +1,81 @@
-const express = require("express")
-const router = express.Router()
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
-const User = require("../models/User")
+function Login(){
 
-// REGISTER
-router.post("/register", async (req,res)=>{
+const navigate = useNavigate()
 
-    const {name,email,password} = req.body
-    
-    const newUser = new User({
-    name,
-    email,
-    password
-    })
-    
-    await newUser.save()
-    
-    res.json({
-    message:"Register success",
-    user:newUser
-    })
-    
-    })
-    
-    // LOGIN
-    router.post("/login", async (req,res)=>{
-    
-    const {email,password} = req.body
-    
-    const user = await User.findOne({email})
-    
-    if(!user){
-    return res.status(400).json({
-    message:"Email không tồn tại"
-    })
-    }
-    
-    if(user.password !== password){
-    return res.status(400).json({
-    message:"Sai mật khẩu"
-    })
-    }
-    
-    res.json({
-    message:"Login success",
-    user
-    })
-    
-    })
-    
-    module.exports = router
+const [email,setEmail] = useState("")
+const [password,setPassword] = useState("")
+
+const handleLogin = async ()=>{
+
+const res = await fetch("/auth/login",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email,
+password
+})
+})
+
+const data = await res.json()
+
+if(res.ok){
+
+localStorage.setItem("user",JSON.stringify(data.user))
+
+alert("Đăng nhập thành công")
+
+navigate("/dashboard")
+
+}else{
+
+alert(data.message)
+
+}
+
+}
+
+return(
+
+<div style={{textAlign:"center",marginTop:"100px"}}>
+
+<h2>Đăng nhập</h2>
+
+<input
+placeholder="Email"
+value={email}
+onChange={(e)=>setEmail(e.target.value)}
+/>
+
+<br/><br/>
+
+<input
+type="password"
+placeholder="Mật khẩu"
+value={password}
+onChange={(e)=>setPassword(e.target.value)}
+/>
+
+<br/><br/>
+
+<button onClick={handleLogin}>
+Đăng nhập
+</button>
+
+<br/><br/>
+
+<button onClick={()=>navigate("/")}>
+⬅ Quay lại
+</button>
+
+</div>
+
+)
+
+}
+
+export default Login
