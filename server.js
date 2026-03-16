@@ -1,41 +1,95 @@
 const express = require("express")
 const mongoose = require("mongoose")
 const path = require("path")
-
-const authRoutes = require("./routes/auth")
-const User = require("./models/User")
+const cors = require("cors")
 
 const app = express()
 
 app.use(express.json())
+app.use(cors())
 
-mongoose.connect("mongodb+srv://lanvihuynh98:Lanvi1905@cluster0.tm10azb.mongodb.net/badminton?retryWrites=true&w=majority")
-.then(() => {
-  console.log("MongoDB connected")
-})
-.catch((err) => {
-  console.log("MongoDB error:", err)
-})
+// ===== MongoDB connect =====
+mongoose.connect("mongodb+srv://lanvihuynh98:Lanvi1905@cluster0.tm10azb.mongodb.net/badminton")
+.then(()=>console.log("MongoDB connected"))
+.catch(err=>console.log(err))
 
-app.use(express.static(path.join(__dirname, "build")))
-
-app.use("/auth", authRoutes)
-
-app.get("/users", async (req, res) => {
-  try {
-    const users = await User.find()
-    res.json(users)
-  } catch (err) {
-    res.status(500).json({ error: err.message })
-  }
+// ===== Schema =====
+const UserSchema = new mongoose.Schema({
+    email:String,
+    password:String
 })
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"))
+const User = mongoose.model("User",UserSchema)
+
+
+// ===== API register =====
+app.post("/auth/register", async (req,res)=>{
+
+    try{
+
+        const {email,password} = req.body
+
+        const user = new User({
+            email,
+            password
+        })
+
+        await user.save()
+
+        res.json({
+            message:"Register success"
+        })
+
+    }catch(err){
+
+        res.status(500).json({
+            message:"Server error"
+        })
+
+    }
+
 })
 
-const PORT = process.env.PORT || 5000
 
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT)
+// ===== API login =====
+app.post("/auth/login", async (req,res)=>{
+
+    try{
+
+        const {email,password} = req.body
+
+        const user = await User.findOne({email,password})
+
+        if(!user){
+            return res.status(400).json({
+                message:"Wrong account"
+            })
+        }
+
+        res.json({
+            message:"Login success"
+        })
+
+    }catch(err){
+
+        res.status(500).json({
+            message:"Server error"
+        })
+
+    }
+
+})
+
+
+// ===== React build =====
+app.use(express.static(path.join(__dirname,"build")))
+
+app.use((req,res)=>{
+  res.sendFile(path.join(__dirname,"build","index.html"))
+})
+
+
+// ===== start server =====
+app.listen(5000,()=>{
+    console.log("Server running port 5000")
 })
