@@ -9,7 +9,7 @@ const app = express()
 
 app.use(express.json())
 
-mongoose.connect("mongodb+srv://lanvihuynh98:Lanvi1906@cluster0.tm10azb.mongodb.net/badminton?retryWrites=true&w=majority")
+mongoose.connect("mongodb+srv://lanvihuynh98:Lanvi1905@cluster0.tm10azb.mongodb.net/badminton?retryWrites=true&w=majority")
 .then(() => {
   console.log("MongoDB connected")
 })
@@ -17,7 +17,7 @@ mongoose.connect("mongodb+srv://lanvihuynh98:Lanvi1906@cluster0.tm10azb.mongodb.
   console.log("MongoDB error:", err)
 })
 
-app.use(express.static(path.join(__dirname, "client/build")))
+app.use(express.static(path.join(__dirname, "build")))
 
 app.use("/auth", authRoutes)
 
@@ -31,7 +31,7 @@ app.get("/users", async (req, res) => {
 })
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client/build/index.html"))
+  res.sendFile(path.join(__dirname, "build", "index.html"))
 })
 
 const PORT = process.env.PORT || 5000
