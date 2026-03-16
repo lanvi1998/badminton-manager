@@ -1,81 +1,52 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+const express = require("express")
+const router = express.Router()
 
-function Login(){
+const User = require("../models/User")
 
-const navigate = useNavigate()
+// REGISTER
+router.post("/register", async (req,res)=>{
 
-const [email,setEmail] = useState("")
-const [password,setPassword] = useState("")
+const {name,email,password} = req.body
 
-const handleLogin = async ()=>{
-
-const res = await fetch("/auth/login",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
+const newUser = new User({
+name,
 email,
 password
 })
+
+await newUser.save()
+
+res.json({
+message:"Register success",
+user:newUser
 })
 
-const data = await res.json()
+})
 
-if(res.ok){
+// LOGIN
+router.post("/login", async (req,res)=>{
 
-localStorage.setItem("user",JSON.stringify(data.user))
+const {email,password} = req.body
 
-alert("Đăng nhập thành công")
+const user = await User.findOne({email})
 
-navigate("/dashboard")
-
-}else{
-
-alert(data.message)
-
+if(!user){
+return res.status(400).json({
+message:"Email không tồn tại"
+})
 }
 
+if(user.password !== password){
+return res.status(400).json({
+message:"Sai mật khẩu"
+})
 }
 
-return(
+res.json({
+message:"Login success",
+user
+})
 
-<div style={{textAlign:"center",marginTop:"100px"}}>
+})
 
-<h2>Đăng nhập</h2>
-
-<input
-placeholder="Email"
-value={email}
-onChange={(e)=>setEmail(e.target.value)}
-/>
-
-<br/><br/>
-
-<input
-type="password"
-placeholder="Mật khẩu"
-value={password}
-onChange={(e)=>setPassword(e.target.value)}
-/>
-
-<br/><br/>
-
-<button onClick={handleLogin}>
-Đăng nhập
-</button>
-
-<br/><br/>
-
-<button onClick={()=>navigate("/")}>
-⬅ Quay lại
-</button>
-
-</div>
-
-)
-
-}
-
-export default Login
+module.exports = router
